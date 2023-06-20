@@ -1,0 +1,1979 @@
+Zanka Software                                            Axel Andersson
+Request for Comments: 2                                      August 2004
+
+                           Wired Protocol 1.1
+
+Status of this Memo
+
+   This memo provides information for the Internet community. It 
+   describes an Internet protocol. Distribution of this memo is 
+   unlimited.
+
+Copyright Notice
+
+   Copyright (C) Axel Andersson 2003-2004. All Rights Reserved.
+
+Abstract
+
+   The Wired protocol is an application-level protocol for real time
+   chat, messaging and file transfers. It is based on the client-server
+   model, with many clients connected to one and the same server,
+   allowing both public and private messaging. The main design
+   principles are standardization and the unification of messaging and
+   file transfer systems.
+   
+   This specification defines the protocol referred to as "Wired 1.1"
+   and is an update to Zanka Software RFC 1 [10].
+
+Table of Contents
+
+   1   Introduction ...................................................4
+   1.1   Purpose ......................................................4
+   1.2   Terminology ..................................................4
+   1.3   Overall Operation ............................................5
+   1.4   Protocol Compatibility .......................................5
+   1.5   Access Authentication ........................................6
+   2   Protocol Parameters ............................................6
+   2.1   Identification Numbers .......................................6
+   2.2   Control Characters ...........................................7
+   2.3   Strings ......................................................7
+   2.4   Base64 Data ..................................................7
+   2.5   Booleans .....................................................7
+   2.6   Version Strings ..............................................7
+   2.7   Addresses ....................................................8
+   2.8   Date & Time Format ...........................................8
+   2.9   Privilege Specifications .....................................9
+   3   Sequences ......................................................10
+   3.1   Login Sequence ...............................................11
+   3.2   Private Chat Sequence ........................................12
+   4   Files ..........................................................12
+   4.1   File Listings ................................................12
+   4.2   Transfers ....................................................12
+   5   Accounts .......................................................13
+   6   Commands .......................................................14
+   6.1  Command Format ................................................14
+   6.2  Command Listing ...............................................15
+   6.2.1    BAN .......................................................15
+   6.2.2    BANNER ....................................................15
+   6.2.3    BROADCAST .................................................15
+   6.2.4    CLEARNEWS .................................................15
+   6.2.5    CLIENT ....................................................16
+   6.2.6    COMMENT ...................................................16
+   6.2.7    CREATEUSER ................................................16
+   6.2.8    CREATEGROUP ...............................................16
+   6.2.9    DECLINE ...................................................17
+   6.2.10   DELETE ....................................................17
+   6.2.11   DELETEUSER ................................................17
+   6.2.12   DELETEGROUP ...............................................17
+   6.2.13   EDITUSER ..................................................17
+   6.2.14   EDITGROUP .................................................18
+   6.2.15   FOLDER ....................................................18
+   6.2.16   GET .......................................................18
+   6.2.17   GROUPS ....................................................19
+   6.2.18   HELLO .....................................................19
+   6.2.19   ICON ......................................................19
+   6.2.20   INFO ......................................................19
+   6.2.21   INVITE ....................................................20
+   6.2.22   JOIN ......................................................20
+   6.2.23   KICK ......................................................20
+   6.2.24   LEAVE .....................................................20
+   6.2.25   LIST ......................................................21
+   6.2.26   ME ........................................................21
+   6.2.27   MOVE ......................................................21
+   6.2.28   MSG .......................................................21
+   6.2.29   NEWS ......................................................22
+   6.2.30   NICK ......................................................22
+   6.2.31   PASS ......................................................22
+   6.2.32   PING ......................................................22
+   6.2.33   POST ......................................................22
+   6.2.34   PRIVCHAT ..................................................23
+   6.2.35   PRIVILEGES ................................................23
+   6.2.36   PUT .......................................................23
+   6.2.37   READUSER ..................................................23
+   6.2.38   READGROUP .................................................24
+   6.2.39   SAY .......................................................24
+   6.2.40   SEARCH ....................................................24
+   6.2.41   STAT ......................................................24
+   6.2.42   STATUS ....................................................25
+   6.2.43   TOPIC .....................................................25
+   6.2.44   TRANSFER ..................................................25
+   6.2.45   TYPE ......................................................25
+   6.2.46   USER ......................................................26
+   6.2.47   USERS .....................................................26
+   6.2.48   WHO .......................................................26
+   7   Messages .......................................................26
+   7.1  Message Format ................................................26
+   7.2  200 Class Messages ............................................27
+   7.2.1    200 Server Information ....................................27
+   7.2.2    201 Login Succeeded .......................................27
+   7.2.3    202 Ping Reply ............................................27
+   7.2.4    203 Server Banner .........................................28
+   7.3  300 Class Messages ............................................28
+   7.3.1    300 Chat ..................................................28
+   7.3.2    301 Action Chat ...........................................28
+   7.3.3    302 Client Join ...........................................28
+   7.3.4    303 Client Leave ..........................................29
+   7.3.5    304 Status Change .........................................29
+   7.3.6    305 Private Message .......................................29
+   7.3.7    306 Client Kicked .........................................30
+   7.3.8    307 Client Banned .........................................30
+   7.3.9    308 Client Information ....................................30
+   7.3.10   309 Broadcast Message .....................................31
+   7.3.11   310 User List .............................................31
+   7.3.12   311 User List Done ........................................32
+   7.3.13   320 News ..................................................32
+   7.3.14   321 News Done .............................................32
+   7.3.15   322 News Posted ...........................................32
+   7.3.16   330 Private Chat Created ..................................33
+   7.3.17   331 Private Chat Invitiation ..............................33
+   7.3.18   332 Private Chat Declined .................................33
+   7.3.19   340 Client Image Change....................................33
+   7.3.20   341 Chat Topic ............................................34
+   7.4  400 Class Messages ............................................34
+   7.4.1    400 Transfer Ready ........................................34
+   7.4.2    401 Transfer Queued .......................................34
+   7.4.3    402 File Information ......................................34
+   7.4.4    410 File Listing ..........................................35
+   7.4.5    411 File Listing Done .....................................35
+   7.4.6    420 Search Listing ........................................36
+   7.4.7    421 Search Listing Done ...................................36
+   7.5  500 Class Messages ............................................36
+   7.5.1    500 Command Failed ........................................36
+   7.5.2    501 Command Not Recognized ................................36
+   7.5.3    502 Command Not Implemented ...............................36
+   7.5.4    503 Syntax Error ..........................................37
+   7.5.5    510 Login Failed ..........................................37
+   7.5.6    511 Banned ................................................37
+   7.5.7    512 Client Not Found ......................................37
+   7.5.8    513 Account Not Found .....................................37
+   7.5.9    514 Account Exists ........................................37
+   7.5.10   515 Cannot Be Disconnected ................................37
+   7.5.11   516 Permission Denied .....................................37
+   7.5.12   520 File or Directory Not Found ...........................38
+   7.5.13   521 File or Directory Exists ..............................38
+   7.5.14   522 Checksum Mismatch .....................................38
+   7.5.14   523 Queue Limit Exceeded ..................................38
+   7.6  600 Class Messages ............................................38
+   7.6.1    600 User Specification ....................................38
+   7.6.2    601 Group Specification ...................................38
+   7.6.3    602 Privileges Specification ..............................39
+   7.6.4    610 User Listing ..........................................39
+   7.6.5    611 User Listing Done .....................................39
+   7.6.6    620 Group Listing .........................................39
+   7.6.7    621 Group Listing Done ....................................39
+   8   References .....................................................40
+   9   Author's Address ...............................................40
+   10  Full Copyright Statement .......................................40
+
+1 Introduction
+
+1.1 Purpose
+
+   The Wired protocol is an application-level protocol for file 
+   transfers and user interaction. It is intended to fill a gap among 
+   Internet class protocols that either provide transfer services or 
+   chat services, usually mutually exclusively. Wired joins these two 
+   types together to provide a complete user experience.
+   
+   This specification defines the protocol referred to as "Wired 1.1".
+   This protocol includes additional commands and server responses,
+   to convey more information to the client.
+
+1.2 Terminology
+
+   client
+      A program that establishes connections for the purpose of 
+      sending commands and interpreting messages.
+
+   command
+      A command sent from a client to a server, as defined in section 
+      6.
+
+   identifier
+      A unique 3-digit number that describes the type of message.
+
+   field
+      A part of a command or a message that conveys a particular 
+      pre-defined type of information.
+
+   message
+      A message sent from a server to a client, as defined in section 
+      7.
+
+   server
+      A program that accepts connections in order to service commands 
+      by sending back messages.
+
+1.3 Overall Operation
+
+   The Wired protocol is a textual command/message protocol. A client 
+   sends a command in a specific format to the server, and the server 
+   interprets this command, and if needed, sends back a message with 
+   requested information.
+
+   Some messages are sent asynchronously, meaning they are sent without 
+   having first received a command. These messages can be sent at any  
+   given time, and a client should be prepared to handle these as they 
+   come.
+
+   A single connection ("control connection") is used to send these 
+   commands and messages back and forth. A separate connection is used 
+   for transfers, in order to maintain the control connection while a 
+   transfer is running.
+
+   Wired communication takes place over a TCP/IP connection using TLS 
+   [1]. The default port is TCP 2000, but other ports can be used. The 
+   transfer port is the default port incremented by one, or 2001 by 
+   default.
+
+1.4 Protocol Compatibility
+
+   This specification adds extended functionality to the previous
+   version. In order to interoperate with implementations, a
+   server or client must take care to be as compatible as possible.
+   The main thing to note is that the number of fields in commands
+   and messages are not static; they will change between protocol
+   versions.
+   
+   To be compatible, a client should accept messages with more fields
+   than the protocol version it was writter for defined, and a server
+   should accept commands with only a partial set of defined fields.
+   
+   The number of fields will, however, never go down. Fields will
+   always retain their ordering. Should a field be obsoleted, it
+   will remain and go unused.
+
+   The following commands were added in version 1.1:
+   
+       BANNER
+       COMMENT
+       STATUS
+       TOPIC
+       TYPE
+   
+   The following messages were added in version 1.1:
+   
+       203 Server Banner
+       340 Client Image Change
+       341 Chat Topic
+   
+   Commands and messages that have gained additional fields are
+   marked where they are documented.
+
+1.5 Access Authentication
+
+   Wired requires all clients to provide authentication in order to 
+   log in to a server. This authentication consists of a login name 
+   and an optional password. Servers wishing to provide anonymous 
+   logins should provide a "guest" user with no password. Clients 
+   should use this login pair as the default.
+
+   Passwords are SHA-1 [2] checksums of the actual passwords. No 
+   cleartext should be sent over the connection.
+   
+   See section 5 for more information on accounts.
+
+2 Protocol Parameters
+
+2.1 Identification Numbers
+
+   The protocol uses identification numbers for a number of object 
+   types. These are unsigned integers.
+
+      ID    = 1*DIGIT
+
+   An identification number is assigned to each connected user,
+   starting with 1 and incremented for each new user. In certain
+   situations, the server software itself may participate in
+   communications. When thus, the server assumes the user id 0.
+
+   An id number is also assigned to each new chat created. Unlike
+   user ids however, these should be assigned randomly from the
+   integer range used. The server should also take care to verify
+   that each client communicating with a certain chat, is actually
+   present on that chat, to prevent unauthorized eavesdropping.
+
+   The public chat is the chat available to everyone and the chat
+   that is automatically joined upon logging in. The public chat
+   is assigned the chat id 1.
+
+2.2 Control Characters
+
+   The following control characters from the US-ASCII [7] table are used:
+
+      EOT    = <US-ASCII EOT, end of transmission (4)>
+      FS     = <US-ASCII FS, file separator (28)>
+      GS     = <US-ASCII GS, group separator (29)>
+      RS     = <US-ASCII US, record separator (30)>
+      SP     = <US-ASCII SP, space (32)>
+
+2.3 Strings
+
+   All string contents are sent in Unicode [3], UTF-8 encoding [4]. 
+   There is no way to select a character set. Clients must be UTF-8 
+   aware if they wish to participate in communications:
+
+      STRING    = <any 8-bit sequence of data in UTF-8 encoding>
+
+2.4 Base64 Data
+
+   In cases where binary data needs to be transmitted on the control
+   connection, it is Base64 encoded [11].
+   
+      BASE64    = <base64 encoded binary data>
+      
+2.5 Booleans
+
+   When a value can be considered as an on/off switch, a boolean value 
+   is used:
+
+      BOOLEAN    = "0" | "1"
+
+2.6 Version Strings
+
+   Version strings are used to convey the version of either the 
+   protocol or the applications involved. The protocol version string 
+   uses a fixed format:
+
+      protocol-version    = 1*DIGIT "." 1*DIGIT
+
+   The application version string has a different format:
+
+      app-version    = name "/" 1*DIGIT "." 1*DIGIT ["." 1*DIGIT]
+                       SP "(" os ")"
+                       [ SP "(" lib-version [";" SP lib-version] ")" ]
+      name           = STRING
+
+      os             = os-release ";" SP os-version ";" SP arch
+      os-release     = STRING
+      os-version     = STRING
+      arch           = STRING
+      
+      lib-version    = STRING
+
+   That is, the application version must always be followed by the
+   operating system version, and optionally, by the versions of
+   additional software used. For example:
+
+      Wired/1.0 (Darwin; 7.2.0; powerpc) (OpenSSL 0.9.7b 10 Apr 2003)
+
+   Note that there is no particular format defined for the operation 
+   system version strings.
+
+2.7 Addresses
+
+   IP addresses are sent in textual representation, in the formats
+   described in RFC 790 [8] and RFC 1884 [9]:
+   
+      IP    = STRING
+
+2.8 Date & Time Format
+
+   Date are sent in the ISO 8601 [5] full "date-time" format, as per RFC 
+   3339 [6]:
+
+      date-fullyear     = 4DIGIT
+      date-month        = 2DIGIT  ; 01-12
+      date-mday         = 2DIGIT  ; 01-28, 01-29, 01-30, 01-31
+      time-hour         = 2DIGIT  ; 00-23
+      time-minute       = 2DIGIT  ; 00-59
+      time-second       = 2DIGIT  ; 00-58, 00-59, 00-60
+      time-secfrac      = "." 1*DIGIT
+      time-numoffset    = ("+" / "-") time-hour ":" time-minute
+      time-offset       = "Z" / time-numoffset
+
+      partial-time      = time-hour ":" time-minute ":" time-second
+                           [time-secfrac]
+      full-date         = date-fullyear "-" date-month "-" date-mday
+      full-time         = partial-time time-offset
+
+      date-time         = full-date "T" full-time
+
+   An example of such a date is:
+
+      1996-12-19T16:39:57-08:00
+
+   This represents 39 minutes and 57 seconds after the 16th hour of 
+   December 19th, 1996 with an offset of -08:00 from UTC.
+
+2.9 Privilege Specifications
+
+   Privilege specifications are sent in the following format:
+
+      privileges    = get-user-info      FS broadcast FS
+                      post-news          FS clear-news FS
+                      download           FS upload FS
+                      upload-anywhere    FS create-folders FS 
+                      alter-files        FS delete-files FS 
+                      view-dropboxes     FS create-accounts FS 
+                      edit-accounts      FS delete-accounts FS 
+                      elevate-privileges FS kick-users FS 
+                      ban-users          FS cannot-be-kicked FS 
+                      download-speed     FS upload-speed FS
+                      download-limit     FS upload-limit FS
+                      change-topic
+
+      get-user-info         = BOOLEAN
+      broadcast             = BOOLEAN
+      post-news             = BOOLEAN
+      clear-news            = BOOLEAN
+      download              = BOOLEAN
+      upload                = BOOLEAN
+      upload-anywhere       = BOOLEAN
+      create-folders        = BOOLEAN
+      alter-files           = BOOLEAN
+      delete-files          = BOOLEAN
+      view-dropboxes        = BOOLEAN
+      create-accounts       = BOOLEAN
+      edit-accounts         = BOOLEAN
+      delete-accounts       = BOOLEAN
+      elevate-privileges    = BOOLEAN
+      kick-users            = BOOLEAN
+      ban-users             = BOOLEAN
+      cannot-be-kicked      = BOOLEAN
+      download-speed        = 1*DIGIT
+      upload-speed          = 1*DIGIT
+      download-limit        = 1*DIGIT     ; Wired 1.1
+      upload-limit          = 1*DIGIT     ; Wired 1.1
+      change-topic          = BOOLEAN     ; Wired 1.1
+
+   This is a series of boolean values, indicating whether a user can or 
+   cannot perform certain commands.
+
+   See section 5 for more information on accounts. See section 4 for more
+   information on the file related privileges.
+
+3 Sequences
+
+3.1 Login Sequence
+
+   The login sequence takes place directly after the client has 
+   established a connection with the server.
+   
+   1.  The client initiates the sequence by sending the "HELLO" command.
+   
+   2.  The server responds with the 200 Server Information or 511 Banned 
+       message.
+   
+   3.  The client sends the "NICK", "ICON", "STATUS" and "CLIENT" commands
+       to set values before becoming visible to other clients.
+      
+       Of these, "NICK" is required, "CLIENT" is optional but highly
+       recommended, and "ICON" and "STATUS" are optional.
+   
+   4.  The clients sends the "USER" command with the login name. "guest"
+       should be used as the default login name.
+   
+   5.  The client sends the "PASS" command with the checksum of the
+       actual password. If the password is empty, no check-summing
+       should be performed.
+   
+   6.  The server responds with the 201 Login Succeeded or 510 Login 
+       Failed messages.
+       
+       If the login was successful, the client has now been added
+       to the public user list and is available to other clients. The
+       server will also reply a 341 Chat Topic message for the public
+       chat, if a topic has been set.
+   
+   7.  The client requests the user list using "WHO", with a value of "1"
+       for the public user list.
+   
+   8.  The server responds with the 310 User List and 311 User List Done
+       messages.
+   
+   9.  Optionally, the client requests the active privileges mask using 
+       "PRIVILEGES".
+   
+   10. The server responds with the 602 Privileges message.
+   
+   11. Optionally, the client requests the news using "NEWS".
+   
+   12. The server responds with the 320 News and 321 News Done messages.
+
+3.2 Private Chat Sequence
+
+   The private chat sequence takes place when a user requests a private
+   chat audience with another user.
+   
+   1.  Client A initiates the sequence by sending the "PRIVCHAT"
+       command.
+   
+   2.  The server creates a private chat and responds with the 330
+       Private Chat Created message. Client A is added to the
+       private chat.
+   
+   3.  Client A invites client B to the private chat by sending the
+       "INVITE" message, with the chat id of the new chat and the
+       user id of client B.
+   
+   4.  The server sends the 331 Private Chat Invitation message to
+       client B, with the chat id of the new chat and the user id
+       of client A.
+   
+   5.  Client B sends a "JOIN" or "DECLINE" command with the chat id
+       of the new chat.
+       
+       Following the "JOIN" command, client B sends a "WHO" command,
+       requesting the user list of the private chat.
+   
+   6.  In case of "JOIN", the server adds client B to the new chat
+       and sends out 302 Client Join messages to the user list of
+       the private chat. In addition, the server replies with a
+       341 Chat Topic message.
+       
+       The server also replies to "WHO" and sends the user list of
+       the private chat to client B.
+       
+       Client A and client B can now communicate in a closed private
+       chat. Other clients can be added by sending out new "INVITE"
+       commands.
+       
+       In case of "DECLINE", the server sends out 332 Private Chat
+       Declined messages to the user list of the private chat.
+   
+   7.  When done, client A and client B send the "LEAVE" command to
+       leave the private chat.
+   
+   8.  The server sends out 303 Client Leave messages to the user list
+       of the private chat.
+
+4 Files
+
+4.1 File Listings
+   
+   The following parameters are sent in file related messages:
+   
+       file-type      = 1*DIGIT  ; 0-3
+       folder-type    = 1*DIGIT  ; 1-3
+   
+   The file type is mapped by the server as follows:
+   
+       0 File
+       1 Directory
+       2 Uploads Directory
+       3 Drop Box Directory
+   
+   Note that for the directory types, the server should send the count
+   of enclosed object as "size" in the listing messages.
+   
+   Uploads directories and drop boxes are special directories that tie in 
+   with the permissions listed in section 5. Uploads and drop box 
+   directories  can be uploaded into by accounts with the "upload" 
+   privilege; the "upload-anywhere" privilege is required to upload into 
+   a regular directory. Having uploads privileges should also enable
+   "create-folders", but only in the directories where the client can
+   upload.
+
+   Drop box directories can only be viewed by accounts with the
+   "view-dropboxes" privilege; for others, the directory should appear
+   with an empty listing.
+
+4.2 Transfers
+
+   Because servers should supporting queueing and resuming transfers,
+   these sequences are a bit more complicated than usual.
+
+   Of note is the so-called Wired checksum. These should be SHA-1 [2]
+   checksums of the first megabyte (1048576 octets) of the file. This
+   is defined to allow checksumming of very large files in real time,
+   and to allow checksums of partially transferred files to match,
+   provided that they exceed 1 MB in size.
+   
+   Sequence, for downloads:
+   
+       1.  The client decides to download a file. If the file has been
+           partially downloaded already, the client should issue a
+           "STAT" command to get the Wired checksum of the file,
+           and compare that to the Wired checksum of the local file.
+           If the match is successful, the "GET" command should be
+           issued with the appropriate offset.
+       
+       2.  The server retains the download request, and may issue
+           401 Transfer Queued messages until a transfer slot is found.
+           When found, the server issues 400 Transfer Ready, with a
+           unique random textual key string to identify the transfer.
+       
+       3.  The client retains the key received in the 400 messages,
+           connects to the server's transfer port, and sends the
+           "TRANSFER" command with the key to identify which transfer.
+       
+       4.  If the key matches the queued transfer, the server begins
+           sending the file; otherwise, the connection is closed.
+   
+   And, for uploads:
+   
+       1.  The client decides to upload a file, and sends the "PUT"
+           command with the appropriate Wired checksum and file size.
+       
+       2.  The server checks if a partially transferred file exists
+           at the location the client specified. If so, compares the
+           Wired checksum of that file to the one given by the client.
+           If a fully transferred file exists at that path, a 521
+           File or Directory Exists should be issued.
+           
+           If the transfer is to be accepted, the server may begin
+           sending out 401 Transfer Queued messages until a slot is
+           found. Then, the 400 Transfer Ready is issued, with a
+           unique key.
+       
+       3.  Just as for downloads, the client connects to the transfer
+           port, sends the "TRANSFER" command, and begins sending
+           the file.
+
+5 Accounts
+
+   There are two principal types of Wired accounts, users and groups.
+
+   User accounts are the primary authentication mechanism, with login
+   and password pairs, just like most systems. When the client has
+   authenticated, it is assigned a privilege mask by the server, which
+   consists of all the values defined in section in 2.9. A client
+   should retain this mask by sending the "PRIVILEGES" command and
+   save the resulting message. A client should not attempt to perform
+   actions that it knows it cannot complete.
+   
+   The server needs to keep track of the mask, and update it accordingly
+   for logged in clients when, for example, an edit accounts request
+   completes.
+   
+   As mentioned in section 1.4 and elsewhere, the default account "guest"
+   should be provided when server administrators wish to provide an
+   anonymous account.
+   
+   User accounts can be assigned to group accounts. Group accounts are
+   similar to user accounts, but lack the "group" and "password" fields,
+   for obvious reasons. Assigning a user account to a group is just a
+   matter of specifying the group's name for the "group" field. If
+   the "group" field is empty, the user account belongs to no group.
+   
+   When a user account is assigned to a group, the user account's
+   privileges are ignored, and the group account's are used instead.
+   Thus, if user A has no limits on either download or upload rates,
+   but group 1 has limits in place, assigning user A to group 1 will
+   result in all logins for user A to have limits.
+
+6 Commands
+
+6.1 Command Format
+
+   A command from a client to a server includes a unique command, 
+   optionally followed by a single space and arguments. The command is 
+   terminated with EOT.
+
+      command     = name [SP argument] EOT
+      name        = "BAN"         | "BANNER"      | "BROADCAST" |
+                    "CLEARNEWS"   | "CLIENT"      | "COMMENT" |
+                    "CREATEUSER"  | "CREATEGROUP" | "DECLINE" |
+                    "DELETE"      | "DELETEUSER"  | "DELETEGROUP" |
+                    "EDITUSER"    | "EDITGROUP"   | "FOLDER" |
+                    "GET"         | "GROUPS"      | "HELLO" |
+                    "ICON"        | "INFO"        | "INVITE" |
+                    "JOIN"        | "KICK"        | "LEAVE" |
+                    "LIST"        | "ME"          | "MOVE" |
+                    "MSG"         | "NEWS"        | "NICK" |
+                    "PASS"        | "PING"        | "POST" |
+                    "PRIVCHAT"    | "PRIVILEGES"  | "PUT" |
+                    "READUSER"    | "READGROUP"   | "SAY" |
+                    "SEARCH"      | "STAT"        | "STATUS" |
+                    "TOPIC"       | "TRANSFER"    | "TYPE" |
+                    "USER"        | "USERS"       | "WHO"
+
+6.2 Command Listing
+
+6.2.1 BAN
+
+      "BAN" SP user FS message EOT
+
+      user       = ID
+      message    = STRING
+
+   Ban the client "user" with the message "message". Performs the same
+   action as "KICK", but also installs a temporary ban on "user". The
+   duration of the time is user-defined.
+
+   Subject to the privilege "ban-users".
+   
+   On failure, may return the errors 512, 515 or 516.
+
+6.2.2 BANNER
+
+      "BANNER" EOT
+
+   Request the server banner.
+   
+   On success, returns a 203.
+
+6.2.3 BROADCAST
+
+      "BROADCAST" SP message EOT
+
+      message    = STRING
+
+   Send the broadcast message "message" to all connected users.
+
+   Subject to the privilege "broadcast".
+   
+   On success, causes a 309.
+   
+   On failure, may return the error 516.
+
+6.2.4 CLEARNEWS
+
+      "CLEARNEWS" EOT
+
+   Empty the news.
+
+   Subject to the privilege "clear-news".
+   
+   On failure, may return the error 516.
+
+6.2.5 CLIENT
+
+      "CLIENT" SP app-version EOT
+
+   Send the client version information.
+
+   See section 2.6 for a specification of "app-version".
+
+   See section 3.1 for more information on the login sequence.
+
+6.2.6 COMMENT
+
+      "COMMENT" SP path FS comment EOT
+
+      path       = STRING
+      comment    = STRING
+
+   Set the comment of the file or folder at "path" to "comment".
+
+   Subject to the privilege "alter-files".
+   
+   On failure, may return the errors 516 or 521.
+
+6.2.7 CREATEUSER
+
+      "CREATEUSER" SP name FS password FS group FS privileges EOT
+
+      name        = STRING
+      password    = STRING
+      group       = STRING
+
+   Create the user account "name", as a member of "group",
+   which can be empty.
+
+   See section 2.9 for a specification of "privileges".
+
+   Subject to the privilege "create-accounts".
+   
+   On failure, may return the errors 514 or 516.
+
+6.2.8 CREATEGROUP
+
+      "CREATEGROUP" SP name FS privileges EOT
+
+      name    = STRING
+
+   Create the group account "name".
+
+   See section 2.9 for a specification of "privileges".
+
+   Subject to the privilege "create-accounts".
+   
+   On failure, may return the errors 514 or 516.
+
+6.2.9 DECLINE
+
+      "DECLINE" SP chat EOT
+
+      chat    = ID
+
+   Decline a chat invitation to "chat".
+
+6.2.10 DELETE
+
+      "DELETE" SP path EOT
+
+      path    = STRING
+
+   Delete the file or folder at "path". All deletes are recursive.
+
+   Subject to the privilege "delete-files".
+   
+   On failure, may return the errors 516 or 520.
+
+6.2.11 DELETEUSER
+
+      "DELETEUSER" SP name EOT
+
+      name    = STRING
+
+   Delete the user account "name".
+
+   Subject to the privilege "delete-accounts".
+   
+   On failure, may return the errors 513 or 516.
+
+6.2.12 DELETEGROUP
+
+      "DELETEGROUP" SP name EOT
+
+      name    = STRING
+
+   Delete the group account "name".
+
+   Subject to the privilege "delete-accounts".
+   
+   On failure, may return the errors 513 or 516.
+
+6.2.13 EDITUSER
+
+      "EDITUSER" SP name FS password FS group FS privileges EOT
+
+      name        = STRING
+      password    = STRING
+      group       = STRING
+
+   Modify the user account "name", setting new values or privileges.
+   A user account cannot be renamed, so "name" must already exist.
+   The group membership can be changed by editing "group", which
+   can be empty.
+
+   See section 2.9 for a specification of "privileges".
+
+   Subject to the privilege "edit-accounts".
+   
+   On failure, may return the errors 513 or 516.
+
+6.2.14 EDITGROUP
+
+      "EDITGROUP" SP name FS privileges EOT
+
+      name    = STRING
+
+   Modify the group account "name", setting new privileges. A group 
+   account cannot be renamed, so "name" must already exist.
+
+   See section 2.9 for a specification of "privileges".
+
+   Subject to the privilege "edit-accounts".
+   
+   On failure, may return the errors 513 or 516.
+
+6.2.15 FOLDER
+
+      "FOLDER" SP path EOT
+
+      path    = STRING
+
+   Create a new folder at "path".
+
+   Subject to the privilege "create-folders".
+   
+   On failure, may return the errors 516 or 521.
+
+6.2.16 GET
+
+      "GET" SP path FS offset EOT
+
+      path      = STRING
+      offset    = 1*DIGIT
+
+   Request a download of the file or folder "path", starting from byte
+   offset "offset". See section 4 for more details on transfers.
+
+   Subject to the privilege "download".
+   
+   On success, returns a 400 or 401.
+   
+   On failure, may return the errors 516, 520 or 523.
+
+6.2.17 GROUPS
+
+      "GROUPS" EOT
+
+   Get a listing of all the group accounts on the server.
+
+   Subject to the privilege "edit-accounts".
+   
+   On success, returns a chain of 620 and a terminating 621.
+   
+   On failure, may return the error 516.
+
+6.2.18 HELLO
+
+      "HELLO" EOT
+
+   Start a conversation with a server. See section 3.1 for more 
+   information on the login sequence.
+   
+   On success, returns a 200.
+   
+   On failure, may return the error 511.
+
+6.2.19 ICON
+
+   Format:
+
+      "ICON" SP icon FS image EOT
+
+      icon     = 1*DIGIT
+      image    = BASE64    ; Wired 1.1
+
+   Change the icon to "icon", and the custom image to "image".
+   
+   On success, causes a 304.
+
+6.2.20 INFO
+
+      "INFO" SP user EOT
+
+      user    = ID
+
+   Request client information for "user".
+
+   Subject to the privilege "get-user-info".
+   
+   On success, returns a 308.
+   
+   On failure, may return the errors 512 or 516.
+
+6.2.21 INVITE
+
+      "INVITE" SP user FS chat EOT
+
+      user    = ID
+      chat    = ID
+
+   Invite the client "user" to the chat "chat". See section 3.2 for more
+   information on private chat sequences.
+
+6.2.22 JOIN
+
+      "JOIN" SP chat EOT
+
+      chat    = ID
+
+   Join the chat "chat". See section 3.2 for more information on private 
+   chat sequences.
+
+6.2.23 KICK
+
+      "KICK" SP user FS message EOT
+
+      user       = ID
+      message    = STRING
+
+   Kick the client "user" with the message "message".
+
+   Subject to the privilege "kick-users".
+   
+   On success, causes a 306.
+   
+   On failure, may return the errors 512 or 516.
+
+6.2.24 LEAVE
+
+      "LEAVE" SP chat EOT
+
+      chat    = ID
+
+   Leave the chat "chat". See section 3.2 for more information on private 
+   chat sequences.
+
+6.2.25 LIST
+
+      "LIST" SP path EOT
+
+      path    = STRING
+
+   List the file contents at "path".
+   
+   On success, returns a chain of 410 and a terminating 411.
+   
+   On failure, may return the error 520.
+
+6.2.26 ME
+
+      "ME" SP chat FS message EOT
+
+      chat       = ID
+      message    = STRING
+
+   Send the action chat "message" to "chat".
+   
+   On success, causes a 301.
+
+6.2.27 MOVE
+
+      "MOVE" SP from FS to EOT
+
+      from    = STRING
+      to      = STRING
+
+   Move the file or folder at "from" to "to".
+
+   Subject to the privilege "alter-files".
+   
+   On failure, may return the errors 516, 520 or 521.
+
+6.2.28 MSG
+
+   Format:
+
+      "MSG" SP user FS message EOT
+
+      user       = ID
+      message    = STRING
+
+   Send the private message "message" to the user "user".
+   
+   On failure, may return the errors 512.
+
+6.2.29 NEWS
+
+      "NEWS" EOT
+
+   Request the news.
+   
+   On success, returns a chain of 320 and a terminating 321.
+
+6.2.30 NICK
+
+      "NICK" SP nick EOT
+
+      nick    = STRING
+
+   Change nick to "nick".
+   
+   On success, causes a 304.
+
+6.2.31 PASS
+
+      "PASS" SP password EOT
+
+      password    = STRING
+
+   Send password. See section 3.1 for more information on the login 
+   sequence.
+   
+   On success, returns a 201.
+   
+   On failure, may return the error 510.
+
+6.2.32 PING
+
+      "PING" EOT
+
+   Ping the server and let it return a 202 message. Should not affect the
+   idle time.
+   
+   On success, returns a 202.
+
+6.2.33 POST
+
+      "POST" SP message EOT
+
+      message    = STRING
+
+   Post "message" to the news.
+   
+   On success, causes a 322.
+
+   Subject to the privilege "post-news".
+   
+   On failure, may return the error 516.
+
+6.2.34 PRIVCHAT
+
+      "PRIVCHAT" EOT
+
+   Create a new chat on the server.
+   
+   On success, returns a 330.
+
+6.2.35 PRIVILEGES
+
+      "PRIVILEGES" EOT
+
+   Request the current privilege mask. See section 3.1 for more  
+   information on the login sequence.
+   
+   On success, returns a 602.
+
+6.2.36 PUT
+
+      "PUT" SP path FS size FS checksum EOT
+
+      path        = STRING
+      size        = 1*DIGIT
+      checksum    = STRING
+
+   Request an upload of the file to be located at the remote path
+   "path", with size "size" and the checksum "checksum". See
+   section 4 for more details on transfers.
+
+   Subject to the privilege "upload".
+   
+   On success, returns a 400 or 401.
+   
+   On failure, may return the errors 516, 521, 522 or 523.
+
+6.2.37 READUSER
+
+      "READUSER" SP name EOT
+
+      name    = STRING
+
+   Get the account specification for the user "name".
+
+   Subject to the privilege "edit-accounts".
+   
+   On success, returns a 600.
+   
+   On failure, may return the error 516.
+
+6.2.38 READGROUP
+
+      "READGROUP" SP name EOT
+
+      name    = STRING
+
+   Get the account specification for the group "name".
+
+   Subject to the privilege "edit-accounts".
+   
+   On success, returns a 601.
+   
+   On failure, may return the error 516.
+
+6.2.39 SAY
+
+      "SAY" SP chat FS message EOT
+
+      chat       = ID
+      message    = STRING
+
+   Send the chat "message" to "chat".
+   
+   On success, causes a 300.
+
+6.2.40 SEARCH
+
+      "SEARCH" SP query EOT
+
+      query    = STRING
+
+   Search the files for filenames containing "query".
+   
+   On success, returns a chain of 420 and a terminating 421.
+
+6.2.41 STAT
+
+      "STAT" SP path EOT
+
+   Get the file information for the file or folder "path".
+   
+   On success, returns a 402.
+
+6.2.42 STATUS
+
+      "STATUS" SP status EOT
+
+      status    = STRING
+
+   Change the status message to "status"
+   
+   On success, causes a 304.
+
+6.2.43 TOPIC
+
+      "TOPIC" SP chat FS topic EOT
+
+      chat     = ID
+      topic    = STRING
+
+   Set the topic of "chat" to "topic".
+   
+   If "chat" is the public chat, subject to the privilege
+   "change-topic".
+   
+   On success, causes a 341.
+   
+   On failure, may return the error 516.
+
+6.2.44 TRANSFER
+
+      "TRANSFER" SP hash EOT
+
+      hash    = STRING
+
+   Identify the transfer requested. See section 4 for more information 
+   on files.
+
+6.2.45 TYPE
+
+      "TYPE" SP path FS type EOT
+
+      path    = STRING
+      type    = folder-type
+
+   Set the type of the folder at "path" to "type".
+
+   Subject to the privilege "alter-files".
+   
+   On failure, may return the errors 516 or 520.
+
+6.2.46 USER
+
+      "USER" SP login EOT
+
+      login    = STRING
+
+   Send login name. See section 3.1 for more information on the login 
+   sequence.
+
+6.2.47 USERS
+
+      "USERS" EOT
+
+   Get a listing of all the user accounts on the server.
+
+   Subject to the privilege "edit-accounts".
+   
+   On success, returns a chain of 610 and a terminating 611.
+   
+   On failure, may return the error 516.
+
+6.2.48 WHO
+
+      "WHO" SP chat EOT
+
+      chat   = ID
+
+   Get the user list for "chat".
+   
+   On success, returns a chain of 310 and a terminating 311.
+
+7 Server Messages
+
+7.1 Message Format
+
+   A message from a server to a client includes a unique three-digit 
+   number, followed by a space, then optional fields, and a terminator.
+
+      message       = identifier [SP argument] EOT
+      identifier    = "200" | "201" | "202" | "203"
+                      "300" | "301" | "302" | "303" | "304" | "305" |
+                      "306" | "307" | "308" | "309" | "310" | "311" |
+                      "320" | "321" | "322" | "330" | "331" | "332" |
+                      "340" | "341"
+                      "400" | "401" | "402" | "410" | "411" | "420" |
+                      "421" |
+                      "500" | "501" | "502" | "503" | "510" | "511"
+                      "512" | "513" | "514" | "515" | "516" | "520" |
+                      "521" | "522" | "523"
+                      "600" | "601" | "610" | "611" | "620" | "621"
+
+   The first digit of the identifier defines the class of response. The 
+   last two digits do not have any categorization role. There are five 
+   values for the first digit:
+
+      2xx Information
+      3xx Chat, news, messaging
+      4xx Files, transfers
+      5xx Errors
+      6xx Administrative
+
+7.2 200 Class Messages
+
+7.2.1 200 Server Information
+
+      "200" SP app-version FS protocol-version FS
+               server-name FS server-description FS
+               start-time FS files-count FS
+               files-size
+
+      server-name           = STRING
+      server-description    = STRING
+      start-time            = date-time
+      files-count           = 1*DIGIT    ; Wired 1.1
+      files-size            = 1*DIGIT    ; Wired 1.1
+
+   Basic information about the server.
+
+   See section 2.6 for a specification of "app-version" and
+   "protocol-version".
+
+   In response to "HELLO", or sent asynchronously.
+
+7.2.2 201 Login Succeeded
+
+      "201" SP user EOT
+
+      user    = ID
+
+   Login succeeded, client was assigned user id "user".
+
+   In response to "PASS".
+
+7.2.3 202 Ping Reply
+
+      "202" SP "Pong" EOT
+
+   In response to "PING".
+
+7.2.4 203 Server Banner
+
+      "203" SP image EOT
+
+      image    = BASE64
+
+   Server banner. The image data is contained in "image".
+
+   In response to "BANNER".
+
+7.3 300 Class Messages
+
+7.3.1 300 Chat
+
+      "300" SP chat FS user FS message EOT
+
+      chat       = ID
+      user       = ID
+      message    = STRING
+
+   Standard chat message from "user" on "chat". The chat message is 
+   contained within "message ".
+
+      user ":" SP message
+
+7.3.2 301 Action Chat
+
+      "301" SP chat FS user FS message EOT
+
+      chat       = ID
+      user       = ID
+      message    = STRING
+
+   Action chat message from "user" on "chat". The chat message is 
+   contained within "message". Typical output format:
+
+      "***" SP user SP message
+
+7.3.3 302 Client Join
+
+      "302" SP chat FS user FS idle FS admin FS icon FS nick FS login FS 
+               ip FS host FS status FS image EOT
+
+      chat      = ID
+      user      = ID
+      idle      = BOOLEAN
+      admin     = BOOLEAN
+      icon      = 1*DIGIT
+      nick      = STRING
+      login     = STRING
+      ip        = IP
+      host      = STRING
+      status    = STRING    ; Wired 1.1
+      image     = BASE64    ; Wired 1.1
+
+   The client "user" joined "chat". If "chat" is the public chat, the
+   client has joined the server.
+
+   The rest of the fields are basic information on the client.
+
+7.3.4 303 Client Leave
+
+      303 SP chat FS user EOT
+
+      chat     = ID
+      user     = ID
+
+   The client "user" left "chat". If "chat" is the public chat, the
+   client has left the server.
+
+7.3.5 304 Status Change
+
+      "304" SP user FS idle FS admin FS icon FS nick FS status EOT
+
+      user      = ID
+      idle      = BOOLEAN
+      admin     = BOOLEAN
+      icon      = 1*DIGIT
+      nick      = STRING
+      status    = STRING    ; Wired 1.1
+
+   The client "user" changed status. Any number of the given fields 
+   have changed.
+
+7.3.6 305 Private Message
+
+      "305" SP user FS message EOT
+
+      user        = ID
+      message     = STRING
+
+   The client "user" sent the receiver a private message. The actual 
+   message is contained within "message".
+
+7.3.7 306 Client Kicked
+
+      "306" SP victim FS killer FS message EOT
+
+      victim      = ID
+      killer      = ID
+      message     = STRING
+
+   The client "victim" was kicked by "killer", who commented with 
+   "message".
+
+7.3.8 307 Client Banned
+
+      "307" SP victim FS killer FS message EOT
+
+      victim      = ID
+      killer      = ID
+      message     = STRING
+
+   The client "victim" was banned by "killer", who commented with 
+   "message".
+
+7.3.9 308 Client Information
+
+      "308" SP user FS idle FS admin FS icon FS nick FS login FS
+               ip FS host FS client-version FS cipher-name FS 
+               cipher-bits FS login-time FS idle-time FS
+               downloads FS uploads FS status FS image EOT
+
+      user              = ID
+      idle              = BOOLEAN
+      admin             = BOOLEAN
+      icon              = 1*DIGIT
+      nick              = STRING
+      login             = STRING
+      ip                = IP
+      host              = STRING
+
+      client-version    = [application-version]
+      cipher-name       = [STRING]
+      cipher-bits       = 1*DIGIT
+      login-time        = date-time
+      idle-time         = date-time
+      downloads         = *(transfer [GS])
+      uploads           = *(transfer [GS])
+      status            = STRING    ; Wired 1.1
+      image             = BASE64    ; Wired 1.1
+
+      transfer          = path RS transferred RS size RS speed
+      path              = STRING
+      transferred       = 1*DIGIT
+      size              = 1*DIGIT
+      speed             = 1*DIGIT
+
+   Extended client information for "user".
+
+   "cipher-name" and "cipher-bits" describe the name of the encryption
+   cipher the client connected using, and the strength in bits of said
+   cipher. These fields may be empty or zero, respectively.
+
+   "login-time" and "idle-time" respectively describe when the client 
+   joined the server, and when the client was last active.
+
+   "downloads" and "uploads" are optional fields that contain any number
+   of "transfer", inter-spaced with RS. These fields may be empty.
+
+   In response to "INFO".   
+
+7.3.10 309 Broadcast Message
+
+      "309" SP user FS message EOT
+
+      user        = ID
+      message     = STRING
+
+   A server-wide broadcast message received from "user". The actual 
+   message is contained within "message".
+
+7.3.11 310 User List
+
+      "310" SP chat FS user FS idle FS admin FS icon FS nick FS login FS 
+               ip FS host FS status FS image EOT
+
+      chat      = ID
+      user      = ID
+      idle      = BOOLEAN
+      admin     = BOOLEAN
+      icon      = 1*DIGIT
+      nick      = STRING
+      login     = STRING
+      ip        = IP
+      host      = STRING
+      status    = STRING    ; Wired 1.1
+      image     = BASE64    ; Wired 1.1
+
+   A client in the user list. Same message format as 302.
+
+   The user list comes sorted by the time each client joined,
+   descending.
+
+   In response to "WHO".
+
+7.3.12 311 User List Done
+
+      "311" SP chat EOT
+
+      chat    = ID
+
+   End of user list for "chat".
+
+   In response to "WHO".
+
+7.3.13 320 News
+
+      "320" SP nick FS post-time FS post EOT
+
+      nick         = STRING
+      post-time    = date-time
+      post         = STRING
+
+   A news post, by "nick", posted at "post-time". The actual post
+   is contained within "post".
+
+   The news comes sorted by the time it was posted, ascending.
+
+   In response to "NEWS".
+
+7.3.14 321 News Done
+
+      "321" SP "Done" EOT
+
+   End of news transfer.
+
+   In response to "NEWS".
+
+7.3.15 322 News Posted
+
+      "322" SP nick FS post-time FS post EOT
+
+      nick         = STRING
+      post-time    = date-time
+      post         = STRING
+
+   A new news post. Same message format as 320.
+
+7.3.16 330 Private Chat Created
+
+      "330" SP chat EOT
+
+      chat     = ID
+
+   A new private chat has been created on the server, and the received
+   has been added to it.
+
+   See section 3.2 for more information on private chat sequences.
+
+   In response to "PRIVCHAT".
+
+7.3.17 331 Private Chat Invitiation
+
+      "331" SP chat FS user EOT
+
+      chat     = ID
+      user     = ID
+
+   The client "user" has invited the received to the private chat
+   "chat".
+
+   See section 3.2 for more information on private chat sequences.
+
+7.3.18 332 Private Chat Declined
+
+      "332" SP chat FS user EOT
+
+      chat     = ID
+      user     = ID
+
+   The client "user" declined the invitation to the chat "chat".
+
+   See section 3.2 for more information on private chat sequences.
+
+7.3.19 340 Client Image Change
+
+      "340" SP user FS image EOT
+
+      user      = ID
+      image     = BASE64
+
+   The client "user" has changed its custom image. Image data
+   available in "image".
+
+7.3.20 341 Chat Topic
+
+      "341" SP chat FS nick FS login FS ip FS time FS topic EOT
+
+      chat      = ID
+      nick      = STRING
+      login     = STRING
+      ip        = IP
+      time      = date-time
+      topic     = STRING
+
+   The topic for the chat "chat" was set by "nick", "login", "ip"
+   at "time". The actual topic is contained in "topic".
+   
+   In reponse to "JOIN" and "PASS".
+
+7.4 400 Class Messages
+
+7.4.1 400 Transfer Ready
+
+      "400" SP path FS offset FS hash EOT
+
+      path      = STRING
+      offset    = 1*DIGIT
+      hash      = STRING
+
+   The transfer of "path" is ready to begin. "hash" is a unique
+   identifier for this particular transfer.
+
+   See section 4 for more information on files.
+
+   In response to "GET" and "PUT".
+
+7.4.2 401 Transfer Queued
+
+      "401" SP path FS position EOT
+
+      path        = STRING
+      position    = 1*DIGIT
+
+   The transfer of "path" has been queued in line at "position". If
+   "position" is greater than 1, additional 401 messages will be sent
+   until the position reaches 0, at which point a 400 message will be
+   sent.
+
+   See section 4 for more information on files.
+
+   In response to "GET" and "PUT".
+
+7.4.3 402 File Information
+
+      "402" SP path FS type FS size FS created FS modified FS
+               checksum FS comment EOT
+
+      path        = STRING
+      type        = file-type
+      size        = 1*DIGIT
+      created     = date-time
+      modified    = date-time
+      checksum    = STRING
+      comment     = STRING    ; Wired 1.1
+
+   Extended file information for "path".
+
+   See section 4 for more information on files.
+
+   In response to "STAT".
+
+7.4.4 410 File Listing
+
+      "410" SP path FS type FS size FS created FS modified EOT
+
+      path        = STRING
+      type        = file-type
+      size        = 1*DIGIT
+      created     = date-time    ; Wired 1.1
+      modified    = date-time    ; Wired 1.1
+
+   A file in the file listing.
+
+   The file listing comes sorted by filename, descending.
+
+   See section 4 for more information on files.
+
+   In response to "LIST".
+
+7.4.5 411 File Listing Done
+
+      "411" SP path FS free EOT
+
+      path    = STRING
+      free    = 1*DIGIT
+
+   End of file listing for "path". "free" contains the number of octets
+   available in the file system that "path" resides on. This number
+   should only be sent for paths where the receiver has uploads 
+   privileges, otherwise a value of zero should be sent. It is up to the
+   client to determine whether this zero means a full file system or a
+   lack of privileges.
+
+   In response to "LIST".
+
+7.4.6 420 Search Listing
+
+      "420" SP path FS type FS size FS created FS modified EOT
+
+      path        = STRING
+      type        = file-type
+      size        = 1*DIGIT
+      created     = date-time    ; Wired 1.1
+      modified    = date-time    ; Wired 1.1
+
+   A file in the search listing. Same message format as 410.
+
+   The sorting of the search listing is undefined.
+
+   See section 4 for more information on files.
+
+   In response to "SEARCH".
+
+7.4.7 421 Search Listing Done
+
+      "421" SP "Done" EOT
+
+   End of search listing.
+
+   In response to "SEARCH".
+
+7.5 500 Class Messages
+
+7.5.1 500 Command Failed
+
+      "500" SP "Command Failed" EOT
+
+   An undefined internal error prevented the command from completing.
+
+7.5.2 501 Command Not Recognized
+
+      "501" SP "Command Not Recognized" EOT
+
+   The command was not recognized.
+
+7.5.3 502 Command Not Implemented
+
+      "502" SP "Command Not Implemented" EOT
+
+   The command has not been implemented by the server.
+
+7.5.4 503 Syntax Error
+
+      "503" SP "Syntax Error" EOT
+
+   There was a syntax error in the command.
+
+7.5.5 510 Login Failed
+
+      "510" SP "Login Failed" EOT
+
+   The login could not complete, the login and/or password provided did 
+   not match a valid entry.
+
+7.5.6 511 Banned
+
+      "511" SP "Banned" EOT
+
+   The login could not complete, the user is banned.
+
+7.5.7 512 Client Not Found
+
+      "512" SP "Client Not Found" EOT
+
+   The server could not find the client referred to.
+
+7.5.8 513 Account Not Found
+
+      "513" SP "Account Not Found" EOT
+
+   The server could not find the account referred to.
+
+7.5.9 514 Account Exists
+
+      "514" SP "Account Exists" EOT
+
+   The account referred to already exists.
+
+7.5.10 515 Cannot Be Disconnected
+
+      "515" SP "Cannot Be Disconnected" EOT
+
+   The user attempted to kick or ban another user that has the privilege
+   "cannot-be-disconnected".
+
+7.5.11 516 Permission Denied
+
+      "516" SP "Permission Denied" EOT
+
+   The command could not complete, the client lacks sufficient 
+   privileges.
+
+7.5.12 520 File or Directory Not Found
+
+      "520" SP "File or Directory Not Found" EOT
+
+   The file or directory referred to could not be found.
+
+7.5.13 521 File or Directory Exists
+
+      "521" SP "File or Directory Exists" EOT
+
+   There already exists a file or directory at the path referred to.
+
+7.5.14 522 Checksum Mismatch
+
+      "522" SP "Checksum Mismatch" EOT
+
+   The two checksums do not match.
+
+7.5.15 523 Queue Limit Exceeded
+
+      "523" SP "Queue Limit Exceeded" EOT
+
+   The client has exhausted its per-client transfer limit. The transfer
+   cannot be entered into the server queue.
+
+7.6 600 Class Messages
+
+7.6.1 600 User Specification
+
+      "600" SP name FS password FS group FS privileges EOT
+
+      name        = STRING
+      password    = STRING
+      group       = STRING
+
+   A specification of a user account.
+
+   See section 2.9 for a specification of "privileges".
+
+   See section 5 for more information on accounts.
+
+   In response to "READUSER".
+
+7.6.2 601 Group Specification
+
+      "601" SP name FS privileges EOT
+
+      name    = STRING
+
+   A specification of a group account.
+
+   See section 2.9 for a specification of "privileges".
+
+   See section 5 for more information on accounts.
+
+   In response to "READGROUP".
+
+7.6.3 602 Privileges Specification
+
+      "602" SP privileges EOT
+
+   The privileges mask for the receiver.
+
+   See section 2.8 for a specification of "privileges".
+
+   See section 5 for more information on accounts.
+
+   In response to "PRIVILEGES".
+
+7.6.4 610 User Listing
+
+      "610" SP name EOT
+
+      name    = STRING
+
+   A user account in the user accounts listing.
+
+   The sorting of the user accounts listing is undefined.
+
+   See section 5 for more information on accounts.
+
+   In response to "USERS".
+
+7.6.5 611 User Listing Done
+
+      "611" SP "Done" EOT
+
+   End of user listing.
+
+   In response to "USERS".
+
+7.6.6 620 Group Listing
+
+      "620" SP name EOT
+
+      name    = STRING
+
+   A group account in the group accounts listing.
+
+   The sorting of the group accounts listing is undefined.
+
+   See section 5 for more information on accounts.
+
+   In response to "GROUPS".
+
+7.6.7 621 Group Listing Done
+
+      "621" SP "Done" EOT
+
+   End of group listing.
+
+   In response to "GROUPS".
+
+8 References
+
+    [1] Dierks, D. and Allen, C., "The TLS Protocol Version 1.0", RFC 
+        2246, January 1999.
+
+    [2] Eastlake, D., "US Secure Hash Algorithm 1 (SHA1)", RFC 3174, 
+        September 2001.
+
+    [3] "Information Technology - Universal Multiple- Octet Coded 
+        Character Set (UCS) - Part 1: Architecture and Basic Multilingual 
+        Plane", ISO/IEC 10646-1:1993. 
+
+    [4] Yergeau, F., "UTF-8, a transformation format of ISO 10646", RFC 
+        2279, January 1998.
+
+    [5] "Data elements and interchange formats - Information interchange 
+        - Representation of dates and times", ISO 8601:1988(E), 
+        International Organization for Standardization, June, 1988.
+
+    [6] Newman, C., "Date and Time on the Internet: Timestamps", RFC 
+        3339, July 2002.
+
+    [7] "Coded Character Set - 7-Bit American Standard Code for 
+        Information Interchange", Standard ANSI X3.4-1986, ANSI, 1986.
+
+    [8] Postel, J., "Assigned Numbers", RFC 790, September 1981.
+
+    [9] Hinden, R. and Deering, S., "IP Version 6 Addressing 
+        Architecture", RFC 1884, December 1995.
+   
+   [10] Andersson, A., "Wired Protocol 1.0", Zanka Software RFC 1,
+        March 2004.
+   
+   [11] Borenstein, N., and N. Freed, "Multipurpose Internet Mail
+        Extensions (MIME) Part One: Format of Internet Message
+        Bodies", RFC 2045, November 1996.
+
+9 Author's Address
+
+   Axel Andersson, axel@zankasoftware.com
+
+10 Full Copyright Statement
+
+   Copyright (C) Axel Andersson 2003-2004. All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain
+   it or assist in its implementation may be prepared, copied,
+   published and distributed, in whole or in part, without restriction
+   of any kind, provided that the above copyright notice, this
+   paragraph and the following disclaimer are included on all such
+   copies and derivative works.
+
+   THIS DOCUMENT AND THE INFORMATION CONTAINED HEREIN IS PROVIDED BY
+   THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+   INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
